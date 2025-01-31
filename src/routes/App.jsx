@@ -1,5 +1,3 @@
-import React from "react";
-
 import {
   BrowserRouter as Router,
   Route,
@@ -21,6 +19,8 @@ import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoute from "./protected/ProtectedRoute";
 import PublicRoute from "./protected/PublicRoute";
 
+import PropTypes from "prop-types";
+
 const Layout = ({ children }) => {
   const location = useLocation();
   const showHeaderAndFooter = !["/login", "/404"].includes(location.pathname);
@@ -32,6 +32,10 @@ const Layout = ({ children }) => {
       {showHeaderAndFooter && <Footer />}
     </>
   );
+};
+
+Layout.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 const App = () => {

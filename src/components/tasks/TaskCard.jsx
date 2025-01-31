@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 
 const TaskCard = ({ task, onUpdateTask, onDeleteTask }) => {
   const toggleCompleted = () => {
@@ -29,6 +29,18 @@ const TaskCard = ({ task, onUpdateTask, onDeleteTask }) => {
       </div>
     </div>
   );
+};
+
+TaskCard.propTypes = {
+  task: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    priority: PropTypes.string,
+    dueDate: PropTypes.string,
+    completed: PropTypes.bool,
+  }).isRequired,
+  onUpdateTask: PropTypes.func.isRequired,
+  onDeleteTask: PropTypes.func.isRequired,
 };
 
 export default TaskCard;

@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 
 const Spinner = ({
   size = "8",
@@ -13,6 +13,12 @@ const Spinner = ({
       {message && <p className="text-gray-600">{message}</p>}
     </div>
   );
+};
+
+Spinner.propTypes = {
+  size: PropTypes.string,
+  color: PropTypes.string,
+  message: PropTypes.string,
 };
 
 export default Spinner;

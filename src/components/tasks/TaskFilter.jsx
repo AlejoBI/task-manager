@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 
 const TaskFilter = ({ filter, setFilter }) => {
   return (
@@ -29,6 +29,11 @@ const TaskFilter = ({ filter, setFilter }) => {
       </button>
     </div>
   );
+};
+
+TaskFilter.propTypes = {
+  filter: PropTypes.string.isRequired,
+  setFilter: PropTypes.func.isRequired,
 };
 
 export default TaskFilter;

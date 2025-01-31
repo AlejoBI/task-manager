@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { createContext, useState, useContext, useEffect } from "react";
 
 import appFirebase from "../firebase/credentials.js";
@@ -23,8 +24,10 @@ import {
 const auth = getAuth(appFirebase);
 const fireStore = getFirestore(appFirebase);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
 
+// eslint-disable-all react/prop-types
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -247,6 +250,7 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

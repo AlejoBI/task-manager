@@ -1,5 +1,5 @@
-import React from "react";
 import { toast } from "react-hot-toast";
+import PropTypes from "prop-types";
 
 const Notification = ({
   message,
@@ -38,6 +38,17 @@ const Notification = ({
       Show Notification
     </button>
   );
+};
+
+Notification.propTypes = {
+  message: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(["success", "error", "info", "warning", "default"]),
+  position: PropTypes.oneOf([
+    "top-right",
+    "top-left",
+    "bottom-right",
+    "bottom-left",
+  ]),
 };
 
 export default Notification;
