@@ -101,7 +101,7 @@ sequenceDiagram
     TP->>TP: setTasks(data), setLoading(false)
     TP->>TP: useMemo → filtra (all/pending/completed/overdue) + ordena (overdue al top) + counts
     TP-->>U: Renderiza TaskCards<br/>TCard: si overdue → badge rojo "Atrasada"
-  error suscripción
+  else error suscripción
     FS--xTS: FirestoreError
     TS-->>TP: onError(err)
     TP->>FH: getErrorMessage(err)
@@ -129,7 +129,7 @@ sequenceDiagram
   TP-->>U: Nueva tarea aparece en grid
   TP-->>TForm: ok (el try no lanzó)
   TForm->>TForm: Reset: name="", priority="MEDIUM", dueDate=""
-  error creación
+  else error creación
     FS--xTS: FirestoreError
     TS--xTP: lanza excepción
     TP->>FH: getErrorMessage(err)
@@ -139,7 +139,7 @@ sequenceDiagram
     Note over TForm: catch vacío: conserva valores<br/>para que usuario reintente
   end
 
-  Note over U,FH: FLUJO TOGGLE COMPLETADO / VENCIDA
+  Note over U,FH: FLUJO TOGGLE COMPLETADO
 
   U->>TCard: Click checkbox
   Note over TCard: Tarea se tacha + opacidad 60%<br/>Si estaba vencida, badge "Atrasada" desaparece
@@ -157,7 +157,7 @@ sequenceDiagram
     TP->>TP: setTasks(updated)
     TP->>TP: isTaskOverdue(dueDate, completed) → si completada ya no se marca atrasada
     TP-->>U: Checkbox animado + opacidad 60%
-  error
+  else error
     FS--xTS: FirestoreError
     TS--xTP: lanza excepción
     TP->>FH: getErrorMessage(err)
@@ -179,7 +179,7 @@ sequenceDiagram
     TS-->>TP: onData(remainingTasks)
     TP->>TP: setTasks(remaining)
     TP-->>U: Tarea eliminada del DOM
-  error
+  else error
     FS--xTS: FirestoreError
     TS--xTP: lanza excepción
     TP->>FH: getErrorMessage(err)
