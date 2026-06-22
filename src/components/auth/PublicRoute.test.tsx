@@ -36,4 +36,19 @@ describe("PublicRoute", () => {
     );
     expect(screen.getByText("public content")).toBeInTheDocument();
   });
+
+  it("redirects to /tasks when authenticated", () => {
+    mockUseAuth.mockReturnValue({
+      user: { uid: "abc" },
+      loading: false,
+    });
+    render(
+      <MemoryRouter initialEntries={["/login"]}>
+        <PublicRoute>
+          <div>public content</div>
+        </PublicRoute>
+      </MemoryRouter>,
+    );
+    expect(screen.queryByText("public content")).not.toBeInTheDocument();
+  });
 });

@@ -121,7 +121,7 @@ describe("taskService", () => {
 
   describe("deleteTask", () => {
     it("calls deleteDoc with the correct document reference", async () => {
-      await deleteTask("task-1");
+      await deleteTask("user-1", "task-1");
 
       expect(mockDeleteDoc).toHaveBeenCalledTimes(1);
       expect(mockDoc).toHaveBeenCalledWith(

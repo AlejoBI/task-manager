@@ -82,6 +82,6 @@ export async function updateTask(
   await firestoreUpdate(doc(db, COLLECTION, id), data as DocumentData);
 }
 
-export async function deleteTask(id: string): Promise<void> {
+export async function deleteTask(_userId: string, id: string): Promise<void> {
   await deleteDoc(doc(db, COLLECTION, id));
 }

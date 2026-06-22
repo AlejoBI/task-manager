@@ -26,6 +26,8 @@ const Header = () => {
     try {
       await logout();
       navigate("/");
+    } catch {
+      // logout falló, no navegamos
     } finally {
       setMenuOpen(false);
     }

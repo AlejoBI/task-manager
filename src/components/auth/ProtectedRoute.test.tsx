@@ -36,4 +36,16 @@ describe("ProtectedRoute", () => {
     );
     expect(screen.getByText("protected content")).toBeInTheDocument();
   });
+
+  it("redirects to /login when unauthenticated", () => {
+    mockUseAuth.mockReturnValue({ user: null, loading: false });
+    render(
+      <MemoryRouter initialEntries={["/tasks"]}>
+        <ProtectedRoute>
+          <div>protected content</div>
+        </ProtectedRoute>
+      </MemoryRouter>,
+    );
+    expect(screen.queryByText("protected content")).not.toBeInTheDocument();
+  });
 });

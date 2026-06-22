@@ -27,11 +27,8 @@ const AuthenticationPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from =
-    location.state != null &&
-    typeof location.state === "object" &&
-    "from" in location.state
-      ? (location.state as { from: { pathname: string } }).from.pathname
-      : "/tasks";
+    (location.state as { from?: { pathname?: string } } | null)
+      ?.from?.pathname ?? "/tasks";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

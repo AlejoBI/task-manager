@@ -4,7 +4,7 @@ import { Icon } from "../components/Icon";
 import TaskForm from "../components/tasks/TaskForm";
 import TaskCard from "../components/tasks/TaskCard";
 import TaskFilter from "../components/tasks/TaskFilter";
-import Spinner from "../components/layout/Spinner";
+import { Spinner } from "../components/layout";
 import {
   subscribeTasks,
   createTask,
@@ -40,18 +40,22 @@ const TasksPage = () => {
     return unsub;
   }, [userId]);
 
-  const addTask = async (data: TaskFormData) => {
-    if (!userId) return;
-    setSubmitting(true);
-    setError(null);
-    try {
-      await createTask(userId, data);
-    } catch (err: unknown) {
-      setError("Error al crear tarea: " + getErrorMessage(err));
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const addTask = useCallback(
+    async (data: TaskFormData) => {
+      if (!userId) return;
+      setSubmitting(true);
+      setError(null);
+      try {
+        await createTask(userId, data);
+      } catch (err: unknown) {
+        setError("Error al crear tarea: " + getErrorMessage(err));
+        throw err;
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [userId],
+  );
 
   const toggleTask = useCallback(
     async (taskId: string, completed: boolean) => {
@@ -71,7 +75,7 @@ const TasksPage = () => {
       if (!userId) return;
       setError(null);
       try {
-        await deleteTask(taskId);
+        await deleteTask(userId, taskId);
       } catch (err: unknown) {
         setError("Error al eliminar tarea: " + getErrorMessage(err));
       }
