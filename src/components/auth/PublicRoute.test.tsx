@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { describe, it, expect, vi } from "vitest";
 import PublicRoute from "./PublicRoute";
 
@@ -44,11 +44,20 @@ describe("PublicRoute", () => {
     });
     render(
       <MemoryRouter initialEntries={["/login"]}>
-        <PublicRoute>
-          <div>public content</div>
-        </PublicRoute>
+        <Routes>
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <div>public content</div>
+              </PublicRoute>
+            }
+          />
+          <Route path="/tasks" element={<div>tasks page</div>} />
+        </Routes>
       </MemoryRouter>,
     );
     expect(screen.queryByText("public content")).not.toBeInTheDocument();
+    expect(screen.getByText("tasks page")).toBeInTheDocument();
   });
 });

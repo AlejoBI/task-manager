@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { describe, it, expect, vi } from "vitest";
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -41,11 +41,20 @@ describe("ProtectedRoute", () => {
     mockUseAuth.mockReturnValue({ user: null, loading: false });
     render(
       <MemoryRouter initialEntries={["/tasks"]}>
-        <ProtectedRoute>
-          <div>protected content</div>
-        </ProtectedRoute>
+        <Routes>
+          <Route
+            path="/tasks"
+            element={
+              <ProtectedRoute>
+                <div>protected content</div>
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/login" element={<div>login page</div>} />
+        </Routes>
       </MemoryRouter>,
     );
     expect(screen.queryByText("protected content")).not.toBeInTheDocument();
+    expect(screen.getByText("login page")).toBeInTheDocument();
   });
 });
