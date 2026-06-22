@@ -35,8 +35,9 @@ sequenceDiagram
       AC--xAP: propaga el error
       AP->>FH: getErrorCode(err)
       FH-->>AP: "auth/email-already-in-use"
-      AP->>AP: ERROR_MESSAGES[code] ?? "Error inesperado..."
-      AP-->>U: Muestra error en español
+  AP->>AP: ERROR_MESSAGES[code] ?? "Error inesperado..."
+  Note over AP: Si code = "auth/too-many-requests"<br/>extrae retryAfter de customData<br/>y agrega "Volvé a intentar en N seg"
+  AP-->>U: Muestra error en español
     end
   end
 
@@ -142,7 +143,7 @@ sequenceDiagram
   U->>TCard: Click checkbox
   TCard->>TP: onUpdateTask(id, !task.completed)
   TP->>TP: useCallback toggleTask
-  TP->>TS: updateTask(taskId, { completed })
+  TP->>TS: updateTask(userId, taskId, { completed })
   TS->>TS: Agrega updatedAt: Timestamp.now()
   TS->>FS: updateDoc(doc, data)
   alt éxito
@@ -166,7 +167,7 @@ sequenceDiagram
   U->>TCard: Click "Eliminar"
   TCard->>TP: onDeleteTask(id)
   TP->>TP: useCallback removeTask
-  TP->>TS: deleteTask(taskId)
+  TP->>TS: deleteTask(userId, taskId)
   TS->>FS: deleteDoc(doc(collection, taskId))
   alt éxito
     FS-->>TS: ok
@@ -302,8 +303,11 @@ sequenceDiagram
   EB->>EB: getDerivedStateFromError(error)
   EB->>EB: state = { error }
   EB-->>U: Pantalla completa:
-  Note over EB,U: Icono alerta rojo<br/>"Algo salió mal"<br/>"Ocurrió un error inesperado."<br/>- details: error.message<br/>- Botón "Recargar página"
-  U->>EB: Click "Recargar página"
+  Note over EB,U: Icono alerta rojo<br/>"Algo salio mal"<br/>"Ocurrio un error inesperado."<br/>- Botones "Reintentar" y "Recargar pagina"
+  U->>EB: Click "Reintentar"
+  EB->>EB: handleReset → setState({ error: null })
+  Note over EB,U: El árbol se re-renderiza sin recargar la pagina
+  U->>EB: Click "Recargar pagina"
   EB->>EB: window.location.reload()
   Note over FA,EB: La app se recarga desde cero
 
@@ -329,6 +333,6 @@ sequenceDiagram
 | **AuthenticationPage** | `getErrorCode()` + `ERROR_MESSAGES` map | Mensaje en español en la UI |
 | **TasksPage** | `getErrorMessage()` + `setError()` | Banner rojo descartable |
 | **TaskForm** | `catch {}` vacío (consume errores) | Conserva valores del formulario |
-| **ErrorBoundary** | `getDerivedStateFromError()` | Pantalla completa con recarga |
+| **ErrorBoundary** | `getDerivedStateFromError()` + `handleReset()` | Pantalla completa con "Reintentar" (remount) y "Recargar página" |
 | **Firebase init** | `try {} catch {}` con fallback | Degradación silenciosa |
 | **Route guards** | Spinner + `Navigate` | Redirección sin error visible |
