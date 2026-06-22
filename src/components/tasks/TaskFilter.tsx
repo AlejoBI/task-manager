@@ -9,6 +9,7 @@ const FILTERS: { key: TaskFilterValue; label: string }[] = [
   { key: "all", label: "Todas" },
   { key: "pending", label: "Pendientes" },
   { key: "completed", label: "Completadas" },
+  { key: "overdue", label: "Atrasadas" },
 ];
 
 const TaskFilter = ({ filter, setFilter }: TaskFilterProps) => {

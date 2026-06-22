@@ -23,7 +23,7 @@ const Footer = () => {
     <footer className="bg-white border-t border-gray-100">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-gray-500">
             &copy; {year} Alejandro Bravo Isajar. Todos los derechos reservados.
           </p>
           <div className="flex items-center gap-6">
@@ -34,7 +34,7 @@ const Footer = () => {
                 {...(link.external
                   ? { target: "_blank", rel: "noopener noreferrer" }
                   : {})}
-                className="text-sm text-gray-400 hover:text-indigo-600 transition-colors"
+                className="text-sm text-gray-500 hover:text-indigo-600 transition-colors"
               >
                 {link.label}
               </a>

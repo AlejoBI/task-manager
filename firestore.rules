@@ -19,7 +19,9 @@ service cloud.firestore {
         && request.auth.uid == resource.data.userId
         && request.resource.data.name is string
         && request.resource.data.priority in ['LOW', 'MEDIUM', 'HIGH']
-        && request.resource.data.completed is bool;
+        && request.resource.data.completed is bool
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.createdAt == resource.data.createdAt;
 
       allow delete: if request.auth != null
         && request.auth.uid == resource.data.userId;

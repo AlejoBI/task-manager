@@ -176,6 +176,93 @@ describe("AuthenticationPage", () => {
     });
   });
 
+  it("shows already-in-use error on register", async () => {
+    mockRegister.mockRejectedValue({ code: "auth/email-already-in-use" });
+    mockUseSearchParams.mockReturnValue([
+      new URLSearchParams("register=true"),
+      vi.fn(),
+    ]);
+    renderPage();
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "existing@test.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Contraseña"), {
+      target: { value: "123456" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Crear cuenta" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Este email ya está registrado"),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("shows weak password error on register", async () => {
+    mockRegister.mockRejectedValue({ code: "auth/weak-password" });
+    mockUseSearchParams.mockReturnValue([
+      new URLSearchParams("register=true"),
+      vi.fn(),
+    ]);
+    renderPage();
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "test@test.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Contraseña"), {
+      target: { value: "1234" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Crear cuenta" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("La contraseña debe tener al menos 6 caracteres"),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("shows too-many-requests error with retry cooldown", async () => {
+    mockLogin.mockRejectedValue({
+      code: "auth/too-many-requests",
+      customData: { retryAfter: 30 },
+    });
+    renderPage();
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "test@test.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Contraseña"), {
+      target: { value: "123456" },
+    });
+    fireEvent.click(screen.getByText("Ingresar"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Demasiados intentos.*30 segundos/),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("shows invalid-email error", async () => {
+    mockLogin.mockRejectedValue({ code: "auth/invalid-email" });
+    renderPage();
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "test@test.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Contraseña"), {
+      target: { value: "123456" },
+    });
+    fireEvent.click(screen.getByText("Ingresar"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("El formato del email no es válido"),
+      ).toBeInTheDocument();
+    });
+  });
+
   it("navigates to redirect path from location state after login", async () => {
     mockLogin.mockResolvedValue(undefined);
     mockUseLocation.mockReturnValue({

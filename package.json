@@ -10,7 +10,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "preview": "vite preview",
-    "test": "npm run format:check && vitest run"
+    "test": "npm run format:check && vitest run",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",

@@ -1,4 +1,4 @@
-export function formatDate(dateStr: string) {
+export const formatDate = (dateStr: string): string => {
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return dateStr;
   return date.toLocaleDateString("es-AR", {
@@ -6,4 +6,4 @@ export function formatDate(dateStr: string) {
     month: "short",
     year: "numeric",
   });
-}
+};

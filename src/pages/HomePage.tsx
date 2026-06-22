@@ -103,9 +103,9 @@ const HomePage = () => {
                   {icon}
                 </svg>
               </div>
-              <h3 className="text-base font-semibold text-gray-900 mb-1.5">
+              <h2 className="text-base font-semibold text-gray-900 mb-1.5">
                 {title}
-              </h3>
+              </h2>
               <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
             </div>
           ))}

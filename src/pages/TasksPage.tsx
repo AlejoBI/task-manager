@@ -11,7 +11,7 @@ import {
   updateTask,
   deleteTask,
 } from "../services/taskService";
-import { getErrorMessage } from "../lib/errorHelpers";
+import { getErrorMessage, isTaskOverdue } from "../lib";
 import type { Task, TaskFormData, TaskFilterValue } from "../types";
 
 const TasksPage = () => {
@@ -85,11 +85,21 @@ const TasksPage = () => {
 
   const filteredTasks = useMemo(
     () =>
-      tasks.filter((task) => {
-        if (filter === "completed") return task.completed;
-        if (filter === "pending") return !task.completed;
-        return true;
-      }),
+      tasks
+        .filter((task) => {
+          if (filter === "completed") return task.completed;
+          if (filter === "pending") return !task.completed;
+          if (filter === "overdue")
+            return isTaskOverdue(task.dueDate, task.completed);
+          return true;
+        })
+        .sort((a, b) => {
+          const aOverdue = isTaskOverdue(a.dueDate, a.completed);
+          const bOverdue = isTaskOverdue(b.dueDate, b.completed);
+          if (aOverdue && !bOverdue) return -1;
+          if (!aOverdue && bOverdue) return 1;
+          return 0;
+        }),
     [tasks, filter],
   );
 

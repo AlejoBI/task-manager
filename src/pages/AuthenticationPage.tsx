@@ -23,6 +23,7 @@ const AuthenticationPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [retryCooldown, setRetryCooldown] = useState(0);
   const { register, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,6 +48,12 @@ const AuthenticationPage = () => {
       navigate(from, { replace: true });
     } catch (err: unknown) {
       const code = getErrorCode(err);
+      if (code === "auth/too-many-requests") {
+        const seconds =
+          (err as { customData?: { retryAfter?: number } }).customData
+            ?.retryAfter ?? 60;
+        setRetryCooldown(seconds);
+      }
       setError(ERROR_MESSAGES[code] || "Error inesperado. Intenta de nuevo.");
     } finally {
       setSubmitting(false);
@@ -87,7 +94,11 @@ const AuthenticationPage = () => {
           {error && (
             <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3.5 py-2.5">
               <Icon name="alert" className="w-4 h-4 shrink-0" />
-              <span>{error}</span>
+              <span>
+                {error}
+                {retryCooldown > 0 &&
+                  ` Volvé a intentar en ${retryCooldown} segundos.`}
+              </span>
             </div>
           )}
 

@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Icon } from "../Icon";
-import { formatDate } from "../../lib/formatDate";
+import { formatDate, isTaskOverdue } from "../../lib";
 import type { Task, Priority } from "../../types";
 
 const PRIORITY_STYLES: Record<
@@ -33,6 +33,7 @@ interface TaskCardProps {
 const TaskCard = memo(
   ({ task, onUpdateTask, onDeleteTask }: TaskCardProps) => {
     const style = PRIORITY_STYLES[task.priority];
+    const overdue = isTaskOverdue(task.dueDate, task.completed);
 
     const toggleCompleted = () => {
       onUpdateTask(task.id, !task.completed);
@@ -73,6 +74,11 @@ const TaskCard = memo(
               <span>{formatDate(task.dueDate)}</span>
             ) : (
               <span className="italic">Sin fecha</span>
+            )}
+            {overdue && (
+              <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-50 text-red-600 border border-red-200">
+                Atrasada
+              </span>
             )}
           </div>
 

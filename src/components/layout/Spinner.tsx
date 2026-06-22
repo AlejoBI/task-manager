@@ -10,13 +10,16 @@ const SIZES = {
 interface SpinnerProps {
   size?: keyof typeof SIZES;
   message?: string;
+  className?: string;
 }
 
-const Spinner = ({ size = "8", message }: SpinnerProps) => {
+const Spinner = ({ size = "8", message, className = "" }: SpinnerProps) => {
   const sizeClass = SIZES[size];
 
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-12">
+    <div
+      className={`flex flex-col items-center justify-center gap-3 py-12 ${className}`}
+    >
       <div
         className={`${sizeClass} border-[3px] border-gray-100 border-t-indigo-500 rounded-full animate-spin`}
       />

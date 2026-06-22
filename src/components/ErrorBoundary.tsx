@@ -16,6 +16,10 @@ export class ErrorBoundary extends Component<Props, State> {
     return { error };
   }
 
+  handleReset = () => {
+    this.setState({ error: null });
+  };
+
   render() {
     if (this.state.error) {
       return (
@@ -25,25 +29,25 @@ export class ErrorBoundary extends Component<Props, State> {
               <Icon name="alert" className="w-8 h-8 text-red-500" />
             </div>
             <h1 className="text-xl font-bold text-gray-900 mb-2">
-              Algo salió mal
+              Algo salio mal
             </h1>
             <p className="text-sm text-gray-500 mb-6">
-              Ocurrió un error inesperado. Intentá recargar la página.
+              Ocurrio un error inesperado.
             </p>
-            <details className="text-left mb-6">
-              <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-600">
-                Ver detalles técnicos
-              </summary>
-              <pre className="mt-2 p-3 bg-gray-100 rounded-lg text-xs text-gray-600 overflow-auto max-h-32">
-                {this.state.error.message}
-              </pre>
-            </details>
-            <button
-              onClick={() => window.location.reload()}
-              className="inline-flex items-center px-5 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors"
-            >
-              Recargar página
-            </button>
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={this.handleReset}
+                className="inline-flex items-center px-5 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors"
+              >
+                Reintentar
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center px-5 py-2.5 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors"
+              >
+                Recargar pagina
+              </button>
+            </div>
           </div>
         </div>
       );

@@ -16,4 +16,4 @@ export interface TaskFormData {
   dueDate: string | null;
 }
 
-export type TaskFilterValue = "all" | "pending" | "completed";
+export type TaskFilterValue = "all" | "pending" | "completed" | "overdue";

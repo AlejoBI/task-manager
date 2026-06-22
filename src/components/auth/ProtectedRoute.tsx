@@ -7,7 +7,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   if (loading) {
-    return <Spinner size="10" />;
+    return <Spinner size="10" className="min-h-screen" />;
   }
 
   if (!user) {

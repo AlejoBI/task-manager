@@ -6,7 +6,7 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <Spinner size="10" />;
+    return <Spinner size="10" className="min-h-screen" />;
   }
 
   if (user) {

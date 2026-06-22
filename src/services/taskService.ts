@@ -8,7 +8,6 @@ import {
   where,
   orderBy,
   onSnapshot,
-  getDoc,
   Timestamp,
   type DocumentData,
 } from "firebase/firestore";
@@ -52,17 +51,6 @@ export const subscribeTasks = (
   });
 };
 
-const verifyOwnership = async (
-  taskId: string,
-  userId: string,
-): Promise<void> => {
-  const ref = doc(db, COLLECTION, taskId);
-  const snap = await getDoc(ref);
-  if (!snap.exists() || snap.data().userId !== userId) {
-    throw new Error("No tienes permiso para modificar esta tarea");
-  }
-};
-
 export const createTask = async (
   userId: string,
   data: TaskFormData,
@@ -80,7 +68,7 @@ export const createTask = async (
 };
 
 export const updateTask = async (
-  userId: string,
+  _userId: string,
   id: string,
   changes: Partial<Omit<Task, "id" | "createdAt">>,
 ): Promise<void> => {
@@ -92,11 +80,12 @@ export const updateTask = async (
   if (dueDate !== undefined) {
     data.dueDate = dueDate ? Timestamp.fromDate(new Date(dueDate)) : null;
   }
-  await verifyOwnership(id, userId);
   await firestoreUpdate(doc(db, COLLECTION, id), data as DocumentData);
 };
 
-export const deleteTask = async (userId: string, id: string): Promise<void> => {
-  await verifyOwnership(id, userId);
+export const deleteTask = async (
+  _userId: string,
+  id: string,
+): Promise<void> => {
   await deleteDoc(doc(db, COLLECTION, id));
 };

@@ -7,7 +7,7 @@ const REQUIRED_VARS = [
   "VITE_FIREBASE_APP_ID",
 ] as const;
 
-export function validateFirebaseConfig() {
+export const validateFirebaseConfig = () => {
   for (const key of REQUIRED_VARS) {
     if (!import.meta.env[key]) {
       throw new Error(
@@ -15,7 +15,7 @@ export function validateFirebaseConfig() {
       );
     }
   }
-}
+};
 
 interface FirebaseConfig {
   apiKey: string;
