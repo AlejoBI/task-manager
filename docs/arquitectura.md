@@ -30,14 +30,14 @@ sequenceDiagram
       AP->>Router: navigate(from, { replace: true })
       Note over AP: 'from' viene de<br/>location.state o "/tasks"
       Router-->>U: Redirige a /tasks (o ruta original)
-    error Firebase
-      FA--xAC: FirebaseError { code, message }
-      AC--xAP: propaga el error
+    else error Firebase
+      FA-x AC: FirebaseError { code, message }
+      AC-x AP: propaga el error
       AP->>FH: getErrorCode(err)
       FH-->>AP: "auth/email-already-in-use"
-  AP->>AP: ERROR_MESSAGES[code] ?? "Error inesperado..."
-  Note over AP: Si code = "auth/too-many-requests"<br/>extrae retryAfter de customData<br/>y agrega "Volvé a intentar en N seg"
-  AP-->>U: Muestra error en español
+      AP->>AP: ERROR_MESSAGES[code] ?? "Error inesperado..."
+      Note over AP: Si code = "auth/too-many-requests"<br/>extrae retryAfter de customData<br/>y agrega "Volvé a intentar en N seg"
+      AP-->>U: Muestra error en español
     end
   end
 
@@ -99,8 +99,8 @@ sequenceDiagram
     Note over TS: Convierte Timestamps,<br/>valida priority,<br/>defaults para name
     TS-->>TP: Task[]
     TP->>TP: setTasks(data), setLoading(false)
-    TP->>TP: useMemo → filteredTasks + counts
-    TP-->>U: Renderiza TaskCards
+    TP->>TP: useMemo → filtra (all/pending/completed/overdue) + ordena (overdue al top) + counts
+    TP-->>U: Renderiza TaskCards<br/>TCard: si overdue → badge rojo "Atrasada"
   error suscripción
     FS--xTS: FirestoreError
     TS-->>TP: onError(err)
@@ -121,13 +121,14 @@ sequenceDiagram
     FS-->>TS: DocumentReference
     TS-->>TP: ok
     TP->>TP: setSubmitting(false)
-    Note over FS,TP: onSnapshot detecta el cambio<br/>automáticamente
-    FS-->>TS: nuevo snapshot
-    TS-->>TP: onData(updatedTasks)
-    TP->>TP: setTasks(updatedTasks)
-    TP-->>U: Nueva tarea aparece en grid
-    TP-->>TForm: ok (el try no lanzó)
-    TForm->>TForm: Reset: name="", priority="MEDIUM", dueDate=""
+  Note over FS,TP: onSnapshot detecta el cambio<br/>automáticamente
+  FS-->>TS: nuevo snapshot
+  TS-->>TP: onData(updatedTasks)
+  TP->>TP: setTasks(updatedTasks)
+  TP->>TP: useMemo → filtra + ordena (overdue al top)
+  TP-->>U: Nueva tarea aparece en grid
+  TP-->>TForm: ok (el try no lanzó)
+  TForm->>TForm: Reset: name="", priority="MEDIUM", dueDate=""
   error creación
     FS--xTS: FirestoreError
     TS--xTP: lanza excepción
@@ -138,9 +139,10 @@ sequenceDiagram
     Note over TForm: catch vacío: conserva valores<br/>para que usuario reintente
   end
 
-  Note over U,FH: FLUJO TOGGLE COMPLETADO
+  Note over U,FH: FLUJO TOGGLE COMPLETADO / VENCIDA
 
   U->>TCard: Click checkbox
+  Note over TCard: Tarea se tacha + opacidad 60%<br/>Si estaba vencida, badge "Atrasada" desaparece
   TCard->>TP: onUpdateTask(id, !task.completed)
   TP->>TP: useCallback toggleTask
   TP->>TS: updateTask(userId, taskId, { completed })
@@ -153,6 +155,7 @@ sequenceDiagram
     FS-->>TS: snapshot actualizado
     TS-->>TP: task.completed = true/false
     TP->>TP: setTasks(updated)
+    TP->>TP: isTaskOverdue(dueDate, completed) → si completada ya no se marca atrasada
     TP-->>U: Checkbox animado + opacidad 60%
   error
     FS--xTS: FirestoreError
@@ -275,8 +278,9 @@ sequenceDiagram
   FH->>FH: ¿err es objeto con .code?
   alt tiene .code
     FH-->>AP: "auth/email-already-in-use"
-    AP->>AP: ERROR_MESSAGES[code] ?? "Error inesperado..."
-    AP-->>U: "Este email ya está registrado"
+  AP->>AP: ERROR_MESSAGES[code] ?? "Error inesperado..."
+  Note over AP: Si code = "auth/too-many-requests"<br/>extrae retryAfter de customData<br/>y agrega "Volvé a intentar en N seg"
+  AP-->>U: "Este email ya está registrado"
   else no tiene .code
     FH-->>AP: ""
     AP->>AP: Fallback "Error inesperado. Intenta de nuevo."
@@ -327,12 +331,12 @@ sequenceDiagram
 
 ## Resumen de la estrategia de manejo de errores
 
-| Capa | Técnica | Respuesta |
-|------|---------|-----------|
-| **AuthContext** | Sin try/catch, propaga errores | El consumidor decide |
-| **AuthenticationPage** | `getErrorCode()` + `ERROR_MESSAGES` map | Mensaje en español en la UI |
-| **TasksPage** | `getErrorMessage()` + `setError()` | Banner rojo descartable |
-| **TaskForm** | `catch {}` vacío (consume errores) | Conserva valores del formulario |
-| **ErrorBoundary** | `getDerivedStateFromError()` + `handleReset()` | Pantalla completa con "Reintentar" (remount) y "Recargar página" |
-| **Firebase init** | `try {} catch {}` con fallback | Degradación silenciosa |
-| **Route guards** | Spinner + `Navigate` | Redirección sin error visible |
+| Capa                   | Técnica                                        | Respuesta                                                        |
+| ---------------------- | ---------------------------------------------- | ---------------------------------------------------------------- |
+| **AuthContext**        | Sin try/catch, propaga errores                 | El consumidor decide                                             |
+| **AuthenticationPage** | `getErrorCode()` + `ERROR_MESSAGES` map        | Mensaje en español en la UI                                      |
+| **TasksPage**          | `getErrorMessage()` + `setError()`             | Banner rojo descartable                                          |
+| **TaskForm**           | `catch {}` vacío (consume errores)             | Conserva valores del formulario                                  |
+| **ErrorBoundary**      | `getDerivedStateFromError()` + `handleReset()` | Pantalla completa con "Reintentar" (remount) y "Recargar página" |
+| **Firebase init**      | `try {} catch {}` con fallback                 | Degradación silenciosa                                           |
+| **Route guards**       | Spinner + `Navigate`                           | Redirección sin error visible                                    |
