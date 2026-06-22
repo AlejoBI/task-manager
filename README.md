@@ -1,8 +1,24 @@
-# React + Vite
+# TaskMaster
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Task manager app con React + TypeScript y Firebase (Auth + Firestore).
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Frontend:** React 18 + TypeScript + Vite + Tailwind CSS
+- **Auth:** Firebase Authentication
+- **Database:** Firestore (NoSQL)
+
+## Desarrollo
+
+```bash
+npm install
+npm run dev
+```
+
+## Variables de entorno
+
+Copiá `.env.example` a `.env` y completá las credenciales de Firebase.
+
+## Firestore Security Rules
+
+Las reglas de seguridad están en `firestore.rules`. Requieren autenticación para leer/escribir documentos propios.
