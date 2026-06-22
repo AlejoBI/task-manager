@@ -8,6 +8,7 @@ import {
   where,
   orderBy,
   onSnapshot,
+  getDoc,
   Timestamp,
   type DocumentData,
 } from "firebase/firestore";
@@ -18,7 +19,7 @@ const COLLECTION = "tasks";
 
 const VALID_PRIORITIES: Priority[] = ["LOW", "MEDIUM", "HIGH"];
 
-function toTask(id: string, data: DocumentData): Task {
+const toTask = (id: string, data: DocumentData): Task => {
   const priority: Priority = VALID_PRIORITIES.includes(data.priority)
     ? data.priority
     : "MEDIUM";
@@ -32,13 +33,13 @@ function toTask(id: string, data: DocumentData): Task {
     completed: data.completed,
     createdAt: data.createdAt?.toDate?.().toISOString() ?? data.createdAt,
   };
-}
+};
 
-export function subscribeTasks(
+export const subscribeTasks = (
   userId: string,
   onData: (tasks: Task[]) => void,
   onError: (err: Error) => void,
-): () => void {
+): (() => void) => {
   const q = query(
     collection(db, COLLECTION),
     where("userId", "==", userId),
@@ -49,12 +50,23 @@ export function subscribeTasks(
       onData(snapshot.docs.map((d) => toTask(d.id, d.data()))),
     error: onError,
   });
-}
+};
 
-export async function createTask(
+const verifyOwnership = async (
+  taskId: string,
+  userId: string,
+): Promise<void> => {
+  const ref = doc(db, COLLECTION, taskId);
+  const snap = await getDoc(ref);
+  if (!snap.exists() || snap.data().userId !== userId) {
+    throw new Error("No tienes permiso para modificar esta tarea");
+  }
+};
+
+export const createTask = async (
   userId: string,
   data: TaskFormData,
-): Promise<void> {
+): Promise<void> => {
   const now = Timestamp.now();
   await addDoc(collection(db, COLLECTION), {
     userId,
@@ -65,12 +77,13 @@ export async function createTask(
     completed: false,
     createdAt: now,
   });
-}
+};
 
-export async function updateTask(
+export const updateTask = async (
+  userId: string,
   id: string,
   changes: Partial<Omit<Task, "id" | "createdAt">>,
-): Promise<void> {
+): Promise<void> => {
   const { dueDate, ...rest } = changes;
   const data: Record<string, unknown> = {
     ...rest,
@@ -79,9 +92,11 @@ export async function updateTask(
   if (dueDate !== undefined) {
     data.dueDate = dueDate ? Timestamp.fromDate(new Date(dueDate)) : null;
   }
+  await verifyOwnership(id, userId);
   await firestoreUpdate(doc(db, COLLECTION, id), data as DocumentData);
-}
+};
 
-export async function deleteTask(_userId: string, id: string): Promise<void> {
+export const deleteTask = async (userId: string, id: string): Promise<void> => {
+  await verifyOwnership(id, userId);
   await deleteDoc(doc(db, COLLECTION, id));
-}
+};

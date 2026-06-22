@@ -4,6 +4,7 @@ const {
   mockAddDoc,
   mockUpdateDoc,
   mockDeleteDoc,
+  mockGetDoc,
   mockDoc,
   mockCollection,
   mockQuery,
@@ -14,6 +15,7 @@ const {
   mockAddDoc: vi.fn(),
   mockUpdateDoc: vi.fn(),
   mockDeleteDoc: vi.fn(),
+  mockGetDoc: vi.fn(),
   mockDoc: vi.fn((_db: unknown, _coll: string, id?: string) => id ?? "doc-ref"),
   mockCollection: vi.fn(() => "tasks-collection"),
   mockQuery: vi.fn(() => "tasks-query"),
@@ -34,6 +36,7 @@ vi.mock("firebase/firestore", () => ({
   updateDoc: mockUpdateDoc,
   deleteDoc: mockDeleteDoc,
   doc: mockDoc,
+  getDoc: mockGetDoc,
   query: mockQuery,
   where: mockWhere,
   orderBy: mockOrderBy,
@@ -95,7 +98,11 @@ describe("taskService", () => {
 
   describe("updateTask", () => {
     it("calls updateDoc with partial changes", async () => {
-      await updateTask("task-1", { name: "Updated", completed: true });
+      mockGetDoc.mockResolvedValue({
+        exists: () => true,
+        data: () => ({ userId: USER_ID }),
+      });
+      await updateTask(USER_ID, "task-1", { name: "Updated", completed: true });
 
       expect(mockUpdateDoc).toHaveBeenCalledTimes(1);
       const data = mockUpdateDoc.mock.calls[0][1];
@@ -105,14 +112,22 @@ describe("taskService", () => {
     });
 
     it("converts dueDate to Timestamp when provided", async () => {
-      await updateTask("task-1", { dueDate: "2026-08-01" });
+      mockGetDoc.mockResolvedValue({
+        exists: () => true,
+        data: () => ({ userId: USER_ID }),
+      });
+      await updateTask(USER_ID, "task-1", { dueDate: "2026-08-01" });
 
       expect(mockUpdateDoc).toHaveBeenCalledTimes(1);
       expect(mockUpdateDoc.mock.calls[0][1].dueDate).toBeDefined();
     });
 
     it("sets dueDate to null when cleared", async () => {
-      await updateTask("task-1", { dueDate: null });
+      mockGetDoc.mockResolvedValue({
+        exists: () => true,
+        data: () => ({ userId: USER_ID }),
+      });
+      await updateTask(USER_ID, "task-1", { dueDate: null });
 
       expect(mockUpdateDoc).toHaveBeenCalledTimes(1);
       expect(mockUpdateDoc.mock.calls[0][1].dueDate).toBeNull();
@@ -121,6 +136,10 @@ describe("taskService", () => {
 
   describe("deleteTask", () => {
     it("calls deleteDoc with the correct document reference", async () => {
+      mockGetDoc.mockResolvedValue({
+        exists: () => true,
+        data: () => ({ userId: USER_ID }),
+      });
       await deleteTask("user-1", "task-1");
 
       expect(mockDeleteDoc).toHaveBeenCalledTimes(1);

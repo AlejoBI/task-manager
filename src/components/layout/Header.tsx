@@ -38,7 +38,10 @@ const Header = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => {
+              navigate("/");
+              setMenuOpen(false);
+            }}
             className="flex items-center gap-2.5 text-indigo-600 hover:text-indigo-700 transition-colors"
           >
             <Logo />

@@ -13,17 +13,20 @@ validateFirebaseConfig();
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 
-function getDb(app: FirebaseApp) {
+const getDb = (app: FirebaseApp) => {
   try {
     return initializeFirestore(app, {
       localCache: persistentLocalCache({
         tabManager: persistentMultipleTabManager(),
       }),
     });
-  } catch {
-    return getFirestore(app);
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("already been started")) {
+      return getFirestore(app);
+    }
+    throw err;
   }
-}
+};
 
 const db = getDb(app);
 

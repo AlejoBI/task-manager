@@ -62,7 +62,7 @@ const TasksPage = () => {
       if (!userId) return;
       setError(null);
       try {
-        await updateTask(taskId, { completed });
+        await updateTask(userId, taskId, { completed });
       } catch (err: unknown) {
         setError("Error al actualizar tarea: " + getErrorMessage(err));
       }

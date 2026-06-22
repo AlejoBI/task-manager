@@ -26,8 +26,8 @@ const TaskForm = ({ onAddTask, submitting = false }: TaskFormProps) => {
       setName("");
       setPriority("MEDIUM");
       setDueDate("");
-    } catch {
-      // keep form values so user can retry
+    } catch (err) {
+      console.error("Error al agregar tarea:", err);
     }
   };
 
